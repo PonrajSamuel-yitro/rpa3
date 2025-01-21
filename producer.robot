@@ -22,6 +22,7 @@ ${GENDER_KEY}       Dim1
 ${YEAR_KEY}         TimeDim
 ${OUTPUT_CSV}       ${OUTPUT_DIR}\\filtered_test.csv
 ${output_group}     ${OUTPUT_DIR}\\filtered_group.csv
+${output_json}     ${OUTPUT_DIR}\\test.csv
 ${COUNTRY_KEY}      SpatialDim
 
 *** Tasks ***
@@ -46,7 +47,7 @@ Save JSON To File
 Load traffic data as table
     ${json}=    Load JSON from file    ${OUTPUT_DIR}${/}traffic.json
     ${table}=    RPA.Tables.Create Table    ${json}[value]
-    Write Table To Csv    ${table}    test2.csv
+    Write Table To Csv    ${table}    ${output_json}   
     RETURN    ${table}   
     
 Filter and sort traffic data
