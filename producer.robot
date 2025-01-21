@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation       Inhuman Insurance, Inc. Artificial Intelligence System robot.
 ...                 Produces traffic data work items.
-
-Library    RPA.HTTP
+Resource            shared.robot
+# Library    RPA.HTTP
 Library    RPA.JSON
 Library    RPA.Excel.Application
 Library    RPA.FileSystem
@@ -22,15 +22,19 @@ ${GENDER_KEY}       Dim1
 ${YEAR_KEY}         TimeDim
 ${OUTPUT_CSV}       ${OUTPUT_DIR}\\filtered_test.csv
 ${output_group}     ${OUTPUT_DIR}\\filtered_group.csv
+${output_groups}     ${OUTPUT_DIR}\\payload.csv
 ${output_json}     ${OUTPUT_DIR}\\test.csv
+# ${OUTPUT_JSON}      ${OUTPUT_DIR}\\latest_data.json
 ${COUNTRY_KEY}      SpatialDim
-
+${OUTPUT_JSON_FILE}    ${OUTPUT_DIR}\\output.json  # Path to save the JSON file
 *** Tasks ***
 Produces traffic data work items
   Download traffic data
   ${table}=    Load traffic data as table
   ${filtered_table}=    Filter and sort traffic data    ${table}
   ${nation}=   Get latest data by country     ${filtered_table}
+  ${payloads}=    Create work item payloads   ${nation}
+#    Save payloads to JSON    ${payloads}    output/payloads.json
 *** Keywords ***
 Download traffic data
     Create Session    alias=session    url=https://github.com    
@@ -105,3 +109,22 @@ Get latest data by country
     Log    Latest data by country saved to ${output_group} 
     
     RETURN    ${latest_data_by_country}
+
+Create work item payloads
+    [Arguments]    ${nation}
+    ${payloads}=    Create List
+    FOR    ${row}    IN    @{nation}
+        ${payload}=
+        ...    Create Dictionary
+        ...    country=${row}[${COUNTRY_KEY}]
+        ...    year=${row}[${YEAR_KEY}]
+        # ...    rate=${row}[${RATE_KEY}]
+        Append To List    ${payloads}    ${payload}
+    END
+    # Convert list to table before writing to CSV
+    ${latest_table}=    RPA.Tables.Create Table    ${payloads}
+    # Write the latest data to CSV file
+    Write Table To Csv    ${latest_table}    ${output_groups}
+    Log    Latest data by country saved to ${output_groups} 
+    RETURN    ${payloads}
+    
