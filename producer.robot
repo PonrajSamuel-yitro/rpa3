@@ -21,6 +21,7 @@ ${GENDER_KEY}       Dim1
 # ${NumericValue}     NumericValue 
 ${YEAR_KEY}         TimeDim
 ${OUTPUT_CSV}       ${OUTPUT_DIR}\\filtered_test.csv
+${output_group}     ${OUTPUT_DIR}\\filtered_group.csv
 ${COUNTRY_KEY}      SpatialDim
 
 *** Tasks ***
@@ -98,8 +99,8 @@ Get latest data by country
     ${latest_table}=    RPA.Tables.Create Table    ${latest_data_by_country}
 
     # Write the latest data to CSV file
-    Write Table To Csv    ${latest_table}    ${OUTPUT_CSV}
+    Write Table To Csv    ${latest_table}    ${output_group} 
 
-    Log    Latest data by country saved to ${OUTPUT_CSV}
+    Log    Latest data by country saved to ${output_group} 
     
     RETURN    ${latest_data_by_country}
